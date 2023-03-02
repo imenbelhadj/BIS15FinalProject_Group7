@@ -1,6 +1,6 @@
 ---
 title: "Linguistic Data"
-author: "Imen"
+author: "Imen, Khushleen, Abigail"
 date: "2023-02-21"
 output: 
   html_document: 
@@ -10,11 +10,27 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+##Column Name Explanations
+L1: Native language of the participant. (String)
+C: Country of origin of the participant. (String)
+L1L2: Linguistic similarity between the native language and the target language. (Integer)
+L1L2: Linguistic similarity between the native language and the target language. (Integer)
+AaA: Age at arrival in the Netherlands. (Integer)
+LoR: Length of residence in the Netherlands. (Integer)
+Edu.day: Formal education days in the target language. (Integer)
+Sex: Gender of the participant. (String)
+Family: Family status of the participant. (String)
+ISO639.3: ISO 639-3 codes for the target language. (String)
+Enroll: Duration enrolled in language courses. (Integer)
+Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language. (Integer)
+morph: Morphological score related to knowledge structures within words. (Integer)
+lex: Lexicon score indicating understanding of written words. (Integer)
+new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures. (Integer)
+new_sounds: Sound symbols score evaluating pronunciation. (Integer)
 
 ```{r}
 library("tidyverse")
 library("tidyr")
-library("here")
 ```
 
 ```{r}
@@ -22,4 +38,9 @@ languages <- readr::read_csv("stex.csv")
 languages
 ```
  
+```{r}
+#languages<-languages %>% 
+  #select(-"L1L2")
+#languages
+```
 
