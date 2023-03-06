@@ -29,18 +29,55 @@ new_feat: Feature score reflecting ability to acquire new sounds/grammatical str
 new_sounds: Sound symbols score evaluating pronunciation. (Integer)
 
 ```{r}
-library("tidyverse")
-library("tidyr")
+library(tidyverse)
+library(tidyr)
+library(janitor)
+library(naniar)
+library(dplyr) 
 ```
 
 ```{r}
-languages <- readr::read_csv("stex.csv")
-languages
+languages <- readr::read_csv("stex.csv") 
+```
+```{r}
+languages2<- languages %>% select(-"L1L2") %>% 
+  plyr::rename(c("C"="Country", "lex"="Lexicon", "morph"="Morphology","new_feat"="New_Features", "new_sounds"="New_Sounds","Edu.day"="Edu_Days"))
 ```
  
 ```{r}
-#languages<-languages %>% 
-  #select(-"L1L2")
-#languages
+languages2
 ```
+
+##Where the NAs are:
+```{r}
+languages2 %>% 
+  summarise_all(~(sum(is.na(.))))
+```
+##Distribution of Sex
+```{r}
+#languages2 %>% count("Sex") %>% 
+#  ggplot(aes(x=Sex,y=freq, fill=Sex))+geom_col()+labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")+geom_text(aes(label=freq),vjust = -0.5)
+```
+
+##Distribution of Second Language
+```{r}
+#languages2 %>% count("L2") %>% 
+ # ggplot(aes(x=L2,y=freq, fill=L2))+geom_col()+labs(x="L2", y="count", title = "Representation of Second Language in the Study Language")+scale_y_log10()+coord_flip()+geom_text(aes(label=freq))
+```
+
+```{r}
+languages2 %>% 
+  mutate(AaA=as.factor(AaA))
+```
+##Distribution of Age at Arrival
+```{r}
+#languages2 %>% count("AaA") %>% 
+#  ggplot(aes(x=AaA,y=freq))+geom_point()+labs(x="Age at Arrival", y="Number of Participants", title = "Representation of Age at Arrival in the Netherlands")+scale_y_log10()
+```
+```{r}
+languages2 %>% 
+  group_by(AaA) %>% 
+  summarise(mean_age_at_arrival=mean(AaA))
+```
+
 
