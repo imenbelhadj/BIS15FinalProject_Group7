@@ -98,7 +98,6 @@ languages2 %>%
 ```
 ```{r}
 languages2 %>% 
-  group_by(AaA) %>% 
   summarise(mean_age_at_arrival=mean(AaA))
 ```
 #Comparing speaking proficiency by age
