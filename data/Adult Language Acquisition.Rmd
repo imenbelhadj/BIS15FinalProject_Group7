@@ -10,21 +10,26 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+## Data Introduction
+*Dataset exploring state examinations in netherlands as dutch as a second language*
+Reference: Schepens, Job, Roeland van Hout, and T. Florian Jaeger. “Big Data Suggest Strong Constraints of Linguistic Similarity on Adult Language Learning.” Cognition 194 (January 1, 2020): 104056. https://doi.org/10.1016/j.cognition.2019.104056.
+Data: 
+https://www.kaggle.com/datasets/thedevastator/adult-language-learning-profile
+
 ##Column Name Explanations
-L1: Native language of the participant. (String)
-C: Country of origin of the participant. (String)
-L1L2: Linguistic similarity between the native language and the target language. (Integer)
-L1L2: Linguistic similarity between the native language and the target language. (Integer)
-AaA: Age at arrival in the Netherlands. (Integer)
-LoR: Length of residence in the Netherlands. (Integer)
-Edu.day: Formal education days in the target language. (Integer)
-Sex: Gender of the participant. (String)
-Family: Family status of the participant. (String)
-ISO639.3: ISO 639-3 codes for the target language. (String)
-Enroll: Duration enrolled in language courses. (Integer)
-Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language. (Integer)
-morph: Morphological score related to knowledge structures within words. (Integer)
-lex: Lexicon score indicating understanding of written words. (Integer)
+L1: The first language of the learner
+C: The country of birth
+L1L2: The combination of first and best additional language besides Dutch
+AaA: Age at Arrival in the Netherlands in years (starting date of residence)
+LoR: Length of residence in the Netherlands in years
+Edu.day: Duration of daily education (1 low, 2 middle, 3 high, 4 very high)
+Sex: Gender of the participant
+Family: Language family
+ISO639.3: Language ID code according to Ethnologue
+Enroll: Proportion of school-aged youth enrolled in secondary education according to the World Bank for participants country
+Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language
+morph: Morphological score related to knowledge structures within words
+lex: Lexicon score indicating understanding of written words
 new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures. (Integer)
 new_sounds: Sound symbols score evaluating pronunciation. (Integer)
 
@@ -53,31 +58,94 @@ languages2
 languages2 %>% 
   summarise_all(~(sum(is.na(.))))
 ```
-##Distribution of Sex
+
+##Distribution of Sex of Participants
 ```{r}
-#languages2 %>% count("Sex") %>% 
-#  ggplot(aes(x=Sex,y=freq, fill=Sex))+geom_col()+labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")+geom_text(aes(label=freq),vjust = -0.5)
+languages2 %>% 
+  count(Sex) %>% 
+  ggplot(aes(x=Sex,y=n, fill=Sex))+
+  geom_col()+
+  labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")#+
+  #geom_text(aes(label=freq),vjust = -0.5)
 ```
 
 ##Distribution of Second Language
 ```{r}
-#languages2 %>% count("L2") %>% 
- # ggplot(aes(x=L2,y=freq, fill=L2))+geom_col()+labs(x="L2", y="count", title = "Representation of Second Language in the Study Language")+scale_y_log10()+coord_flip()+geom_text(aes(label=freq))
+languages2 %>% 
+  count(L2) %>% 
+  ggplot(aes(x=L2,y=n, fill=L2))+
+  geom_col()+
+  labs(x="L2", y="count", title = "Representation of Second Language in the Study Language")+
+  scale_y_log10()+
+  coord_flip()+
+  guides(fill="none")#+
+  #geom_text(aes(label=freq))
 ```
 
 ```{r}
 languages2 %>% 
   mutate(AaA=as.factor(AaA))
 ```
+
 ##Distribution of Age at Arrival
 ```{r}
-#languages2 %>% count("AaA") %>% 
-#  ggplot(aes(x=AaA,y=freq))+geom_point()+labs(x="Age at Arrival", y="Number of Participants", title = "Representation of Age at Arrival in the Netherlands")+scale_y_log10()
+languages2 %>% 
+  count(AaA) %>% 
+  ggplot(aes(x=AaA,y=n))+
+  geom_point()+
+  labs(x="Age at Arrival", y="Number of Participants", title = "Representation of Age at Arrival in the Netherlands")+
+  scale_y_log10()
 ```
 ```{r}
 languages2 %>% 
   group_by(AaA) %>% 
   summarise(mean_age_at_arrival=mean(AaA))
+```
+#Comparing speaking proficiency by age
+- Looking at the distribution
+```{r}
+languages2 %>% 
+  ggplot(aes(x=Sex, y=Speaking, fill=Sex))+
+  geom_boxplot(alpha=0.6)+
+  coord_flip()+
+  labs(title = "Range of Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
+  guides(fill="none")
+```
+```{r}
+languages2 %>% 
+  ggplot(aes(x=Speaking, fill=Sex))+
+  geom_histogram(alpha=0.6)+
+  facet_wrap(.~Sex)+
+  labs(title = "Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
+  guides(fill="none")
+```
+#Comparing Length of Education and Speaking Proficiency
+```{r}
+languages2 %>% 
+  mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
+                   Edu_Days == 2 ~ "middle",
+                   Edu_Days == 3 ~ "high",
+                   Edu_Days == 4 ~ "very high")) %>% 
+  filter(!is.na(Edu_Days_Category)) %>% 
+  ggplot(aes(x=Speaking, fill=Edu_Days_Category))+
+  geom_histogram(bins = 40, alpha=0.6)+
+  facet_wrap(.~Edu_Days_Category)+
+  labs(title = "Speaking Scores By Days of Formal Education", y = "Speaking Score", x=NULL )+
+  guides(fill="none")
+```
+- By gender
+```{r}
+languages2 %>% 
+  mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
+                   Edu_Days == 2 ~ "middle",
+                   Edu_Days == 3 ~ "high",
+                   Edu_Days == 4 ~ "very high")) %>% 
+  filter(!is.na(Edu_Days_Category)) %>% 
+  ggplot(aes(x=Speaking, fill=Sex))+
+  geom_histogram(bins = 40, alpha = 0.6)+
+  facet_grid(Sex~Edu_Days_Category, scales = "free_y")+
+  labs(title = "Speaking Scores By Days of Formal Education and Sex", y = "Speaking Score" , x=NULL)+
+  guides(fill="none")
 ```
 
 
