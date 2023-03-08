@@ -38,10 +38,10 @@ library(tidyverse)
 
 ```
 ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-## ✔ ggplot2 3.4.0      ✔ purrr   1.0.0 
-## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-## ✔ readr   2.1.3      ✔ forcats 0.5.2 
+## ✔ ggplot2 3.4.0     ✔ purrr   1.0.1
+## ✔ tibble  3.1.8     ✔ dplyr   1.1.0
+## ✔ tidyr   1.2.1     ✔ stringr 1.4.1
+## ✔ readr   2.1.3     ✔ forcats 0.5.2
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
@@ -64,7 +64,14 @@ library(janitor)
 ```r
 library(naniar)
 library(dplyr) 
+library(ggthemes)
 ```
+
+
+```r
+#install.packages("ggthemes")
+```
+
 
 
 ```r
@@ -137,7 +144,7 @@ languages2 %>%
   labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")#+
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ```r
   #geom_text(aes(label=freq),vjust = -0.5)
@@ -156,7 +163,7 @@ languages2 %>%
   guides(fill="none")#+
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 ```r
   #geom_text(aes(label=freq))
@@ -198,7 +205,7 @@ languages2 %>%
   scale_y_log10()
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ```r
 languages2 %>% 
@@ -234,7 +241,7 @@ languages2 %>%
   guides(fill="none")
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 ```r
 languages2 %>% 
@@ -249,7 +256,7 @@ languages2 %>%
 ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 #Comparing Length of Education and Speaking Proficiency
 
 ```r
@@ -266,7 +273,7 @@ languages2 %>%
   guides(fill="none")
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 - By gender
 
 ```r
@@ -283,6 +290,103 @@ languages2 %>%
   guides(fill="none")
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
+#Exploring Language Distribution (L1) w/ Country
+
+
+```r
+languages2 %>% 
+  group_by(Country) %>% 
+  select(L1) %>% 
+  summarize(n_languages=n_distinct(L1)) %>%  
+  arrange(-n_languages) #for top 5 countries that speak the most amount of different L1
+```
+
+```
+## Adding missing grouping variables: `Country`
+```
+
+```
+## # A tibble: 119 × 2
+##    Country       n_languages
+##    <chr>               <int>
+##  1 Netherlands            32
+##  2 USSR                   30
+##  3 Germany                29
+##  4 Yugoslavia             27
+##  5 Iran                   19
+##  6 UnitedKingdom          19
+##  7 Russia                 17
+##  8 Turkey                 17
+##  9 UnitedStates           16
+## 10 Morocco                15
+## # … with 109 more rows
+```
+
+
+```r
+netherlands_languages <- languages2 %>% 
+  select(L1, L2, Country) %>% 
+  filter(Country == "Netherlands")
+netherlands_languages
+```
+
+```
+## # A tibble: 735 × 3
+##    L1        L2          Country    
+##    <chr>     <chr>       <chr>      
+##  1 Afrikaans English     Netherlands
+##  2 Afrikaans English     Netherlands
+##  3 Arabic    French      Netherlands
+##  4 Arabic    French      Netherlands
+##  5 Arabic    English     Netherlands
+##  6 Arabic    French      Netherlands
+##  7 Arabic    Monolingual Netherlands
+##  8 Arabic    English     Netherlands
+##  9 Arabic    French      Netherlands
+## 10 Arabic    French      Netherlands
+## # … with 725 more rows
+```
+
+
+```r
+p <- netherlands_languages %>% 
+  select(L1) %>% 
+  group_by(L1) %>% 
+  summarize(n=n()) %>% 
+  arrange(-n) %>% 
+  head(n=10)
+p
+```
+
+```
+## # A tibble: 10 × 2
+##    L1             n
+##    <chr>      <int>
+##  1 Turkish      281
+##  2 Arabic       185
+##  3 English       69
+##  4 French        28
+##  5 German        26
+##  6 Spanish       19
+##  7 Italian       17
+##  8 Portugese     17
+##  9 Tamazight     17
+## 10 Indonesian    14
+```
+
+
+
+```r
+p %>% 
+  ggplot(aes(x=reorder(L1, n), y=n))+
+  geom_col(na.rm = T)+ 
+  labs(title = "Top 10 First Languages (L1) in the Netherlands",
+       x = "Language",
+       y = "Number of Residents That Speak L1") +
+  theme_clean()
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 

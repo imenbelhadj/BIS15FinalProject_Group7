@@ -39,7 +39,13 @@ library(tidyr)
 library(janitor)
 library(naniar)
 library(dplyr) 
+library(ggthemes)
 ```
+
+```{r}
+#install.packages("ggthemes")
+```
+
 
 ```{r}
 languages <- readr::read_csv("stex.csv") 
@@ -98,6 +104,7 @@ languages2 %>%
 ```
 ```{r}
 languages2 %>% 
+  group_by(AaA) %>% 
   summarise(mean_age_at_arrival=mean(AaA))
 ```
 #Comparing speaking proficiency by age
@@ -147,4 +154,41 @@ languages2 %>%
   guides(fill="none")
 ```
 
+#Exploring Language Distribution (L1) w/ Country
+
+```{r}
+languages2 %>% 
+  group_by(Country) %>% 
+  select(L1) %>% 
+  summarize(n_languages=n_distinct(L1)) %>%  
+  arrange(-n_languages) #for top 5 countries that speak the most amount of different L1
+```
+
+```{r}
+netherlands_languages <- languages2 %>% 
+  select(L1, L2, Country) %>% 
+  filter(Country == "Netherlands")
+netherlands_languages
+```
+
+```{r}
+p <- netherlands_languages %>% 
+  select(L1) %>% 
+  group_by(L1) %>% 
+  summarize(n=n()) %>% 
+  arrange(-n) %>% 
+  head(n=10)
+p
+```
+
+
+```{r}
+p %>% 
+  ggplot(aes(x=reorder(L1, n), y=n))+
+  geom_col(na.rm = T)+ 
+  labs(title = "Top 10 First Languages (L1) in the Netherlands",
+       x = "Language",
+       y = "Number of Residents That Speak L1") +
+  theme_clean()
+```
 
