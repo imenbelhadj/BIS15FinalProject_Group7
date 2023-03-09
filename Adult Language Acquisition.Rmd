@@ -59,13 +59,13 @@ languages2<- languages %>% select(-"L1L2") %>%
 languages2
 ```
 
-##Where the NAs are:
+## 1) Where the NAs are:
 ```{r}
 languages2 %>% 
   summarise_all(~(sum(is.na(.))))
 ```
 
-##Distribution of Sex of Participants
+## 2) Distribution of Sex of Participants
 ```{r}
 languages2 %>% 
   count(Sex) %>% 
@@ -75,7 +75,7 @@ languages2 %>%
   theme_clean()
 ```
 
-##Distribution of Second Language
+## 3) Distribution of Second Language
 ```{r}
 languages2 %>% 
   count(L2) %>% 
@@ -93,7 +93,7 @@ languages2 %>%
   mutate(AaA=as.factor(AaA))
 ```
 
-##Distribution of Age at Arrival
+## 4) Distribution of Age at Arrival
 ```{r}
 languages2 %>% 
   count(AaA) %>% 
@@ -109,20 +109,20 @@ languages2 %>%
   summarise(mean_age_at_arrival=mean(AaA))
 ```
 
-#Comparing speaking proficiency by age
-
-- Looking at the distribution
+# 5) Comparing speaking proficiency by age at arrival
 ```{r}
 languages2 %>% 
-  ggplot(aes(x=Speaking, fill=Sex))+
-  geom_histogram(alpha=0.6)+
-  facet_wrap(.~Sex)+
-  labs(title = "Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
+  group_by(AaA) %>% 
+  summarise(Avg_Speaking = mean(Speaking)) %>% 
+  ggplot(aes(x=AaA, y=Avg_Speaking))+
+  geom_point(shape=2)+
+  geom_smooth(method = lm)+
+  labs(title = "Speaking Scores By Participants Age at Arrival in Netherlands", x = "Age of Participants", y="Average Speaking Score" )+
   guides(fill="none")+
   theme_clean()
 ```
 
-#Comparing Length of Education and Speaking Proficiency
+# 6) Comparing Length of Education and Speaking Proficiency
 ```{r}
 languages2 %>% 
   mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
@@ -154,7 +154,7 @@ languages2 %>%
   theme_clean()
 ```
 
-#Exploring Language Distribution (L1) w/ Country
+## 7) Exploring Language Distribution (L1) w/ Country
 
 ```{r}
 languages2 %>% 
@@ -192,7 +192,7 @@ p %>%
 ```
 
 
-#Top 10 L2 in Netherlands
+## 8) Top 10 L2 in Netherlands
 
 ```{r}
 netherlands_languages %>% 
@@ -229,7 +229,7 @@ p2 %>%
   theme_clean()
 ```
 
-# Morphology & L1 vs Proficiency
+## 9) Morphology & L1 vs Proficiency
 
 ```{r}
 p4 <- languages2 %>% 
@@ -253,7 +253,7 @@ p4 %>%
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
-#Speaking prof vs. Country & Education Time?
+## 10) Speaking prof vs. Country & Education Time?
 Based off of the top 3 countries that speak the most different amt of L1
 Extremes of edu.days (low & very high)
 
@@ -283,10 +283,9 @@ p3 %>%
        x = "Proficiency Score")
 ```
 
-## LoR vs Speaking Proficiency
+## 11) LoR vs Speaking Proficiency
 
 - Looking at number of participants per residency length category
-
 ```{r}
 languages2 %>% 
   mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
@@ -295,8 +294,8 @@ languages2 %>%
                   LoR > 45 ~ "very high")) %>% 
   count(LoR_Category) %>% 
   ggplot(aes(x=LoR_Category, y=n, fill=LoR_Category))+
-  geom_col()+
-  labs(title = "Participants per Residency Category", x= "Length of Residency", y = "Number of Participants")+
+  geom_col(alpha = 0.6)+
+  labs(title = "Participants Per Residency Category", x= "Length of Residency", y = "Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
@@ -311,7 +310,7 @@ languages2 %>%
   filter(LoR_Category == "low") %>% 
   ggplot(aes(x=Speaking))+
   geom_histogram()+
-  labs(title = "Speaking Score Distribution for Low Residency", x= "Speaking Score", y = "Number of Participants")+
+  labs(title = "Speaking Score Distribution for Low Residency Category", x= "Speaking Score", y = "Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
@@ -332,7 +331,7 @@ languages2 %>%
   theme_clean()
 ```
 
-## Comparision of new sounds learned vs language family
+## 12) Comparision of new sounds learned vs language family
 
 - average new sounds per language family
 ```{r}
@@ -360,7 +359,7 @@ languages2 %>%
   theme_clean()
 ```
 
-## From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
+## 13) From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
 ```{r}
 #Highest Lexile(best understanding of new written words on avg):
 languages2 %>% 
@@ -379,7 +378,7 @@ languages2 %>%
   arrange(desc(mean_speaking))%>% slice_head()
 ```
 
-## Do men or women tend to have an easier time learning Dutch on average?
+## 14) Do men or women tend to have an easier time learning Dutch on average?
 ```{r}
 languages2 %>%
   filter(Sex=="Female") %>% 
