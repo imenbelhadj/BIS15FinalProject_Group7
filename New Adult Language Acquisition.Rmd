@@ -1,0 +1,302 @@
+---
+title: "Imen's"
+output: 
+  html_document: 
+    keep_md: yes
+date: "2023-03-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Data Introduction
+*Dataset exploring state examinations in netherlands as dutch as a second language*
+Reference: Schepens, Job, Roeland van Hout, and T. Florian Jaeger. “Big Data Suggest Strong Constraints of Linguistic Similarity on Adult Language Learning.” Cognition 194 (January 1, 2020): 104056. https://doi.org/10.1016/j.cognition.2019.104056.
+Data: 
+https://www.kaggle.com/datasets/thedevastator/adult-language-learning-profile
+
+##Column Name Explanations
+L1: The first language of the learner
+C: The country of birth
+L1L2: The combination of first and best additional language besides Dutch
+AaA: Age at Arrival in the Netherlands in years (starting date of residence)
+LoR: Length of residence in the Netherlands in years
+Edu.day: Duration of daily education (1 low, 2 middle, 3 high, 4 very high)
+Sex: Gender of the participant
+Family: Language family
+ISO639.3: Language ID code according to Ethnologue
+Enroll: Proportion of school-aged youth enrolled in secondary education according to the World Bank for participants country
+Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language
+morph: Morphological score related to knowledge structures within words
+lex: Lexicon score indicating understanding of written words
+new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures. (Integer)
+new_sounds: Sound symbols score evaluating pronunciation. (Integer)
+
+```{r}
+library(tidyverse)
+library(tidyr)
+library(janitor)
+library(naniar)
+library(dplyr) 
+library(ggthemes)
+```
+
+```{r}
+#install.packages("ggthemes")
+```
+
+
+```{r}
+languages <- readr::read_csv("data/stex.csv") 
+```
+```{r}
+languages2<- languages %>% select(-"L1L2") %>% 
+  plyr::rename(c("C"="Country", "lex"="Lexicon", "morph"="Morphology","new_feat"="New_Features", "new_sounds"="New_Sounds","Edu.day"="Edu_Days"))
+```
+ 
+```{r}
+languages2
+```
+
+##Where the NAs are:
+```{r}
+languages2 %>% 
+  summarise_all(~(sum(is.na(.))))
+```
+
+##Distribution of Sex of Participants
+```{r}
+languages2 %>% 
+  count(Sex) %>% 
+  ggplot(aes(x=Sex,y=n, fill=Sex))+
+  geom_col()+
+  labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")+
+  theme_clean()
+```
+
+##Distribution of Second Language
+```{r}
+languages2 %>% 
+  count(L2) %>% 
+  ggplot(aes(x=L2,y=n, fill=L2))+
+  geom_col()+
+  labs(x="L2", y="count", title = "Representation of Second Language in the Study Language")+
+  scale_y_log10()+
+  coord_flip()+
+  guides(fill="none")+
+  theme_clean()
+```
+
+```{r}
+languages2 %>% 
+  mutate(AaA=as.factor(AaA))
+```
+
+##Distribution of Age at Arrival
+```{r}
+languages2 %>% 
+  count(AaA) %>% 
+  ggplot(aes(x=AaA,y=n))+
+  geom_point()+
+  labs(x="Age at Arrival", y="Number of Participants", title = "Representation of Age at Arrival in the Netherlands")+
+  scale_y_log10()+
+  theme_clean()
+```
+```{r}
+languages2 %>% 
+  group_by(AaA) %>% 
+  summarise(mean_age_at_arrival=mean(AaA))
+```
+
+#Comparing speaking proficiency by age
+
+- Looking at the distribution
+```{r}
+languages2 %>% 
+  ggplot(aes(x=Speaking, fill=Sex))+
+  geom_histogram(alpha=0.6)+
+  facet_wrap(.~Sex)+
+  labs(title = "Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
+  guides(fill="none")+
+  theme_clean()
+```
+
+#Comparing Length of Education and Speaking Proficiency
+```{r}
+languages2 %>% 
+  mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
+                   Edu_Days == 2 ~ "middle",
+                   Edu_Days == 3 ~ "high",
+                   Edu_Days == 4 ~ "very high")) %>% 
+  filter(!is.na(Edu_Days_Category)) %>% 
+  ggplot(aes(x=Speaking, fill=Edu_Days_Category))+
+  geom_histogram(bins = 40, alpha=0.6)+
+  facet_wrap(.~Edu_Days_Category)+
+  labs(title = "Speaking Scores By Days of Formal Education", y = "Speaking Score", x=NULL )+
+  guides(fill="none")+
+  theme_clean()
+```
+
+- By gender
+```{r}
+languages2 %>% 
+  mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
+                   Edu_Days == 2 ~ "middle",
+                   Edu_Days == 3 ~ "high",
+                   Edu_Days == 4 ~ "very high")) %>% 
+  filter(!is.na(Edu_Days_Category)) %>% 
+  ggplot(aes(x=Speaking, fill=Sex))+
+  geom_histogram(bins = 40, alpha = 0.6)+
+  facet_grid(Sex~Edu_Days_Category, scales = "free_y")+
+  labs(title = "Speaking Scores By Days of Formal Education and Sex", y = "Speaking Score" , x=NULL)+
+  guides(fill="none")+
+  theme_clean()
+```
+
+#Exploring Language Distribution (L1) w/ Country
+
+```{r}
+languages2 %>% 
+  group_by(Country) %>% 
+  select(L1) %>% 
+  summarize(n_languages=n_distinct(L1)) %>%  
+  arrange(-n_languages) #for top 5 countries that speak the most amount of different L1
+```
+
+```{r}
+netherlands_languages <- languages2 %>% 
+  select(L1, L2, Country) %>% 
+  filter(Country == "Netherlands")
+netherlands_languages
+```
+
+```{r}
+p <- netherlands_languages %>% 
+  select(L1) %>% 
+  group_by(L1) %>% 
+  summarize(n=n()) %>% 
+  arrange(-n) %>% 
+  head(n=10)
+p
+```
+
+```{r}
+p %>% 
+  ggplot(aes(x=reorder(L1, n), y=n))+
+  geom_col(na.rm = T)+ 
+  labs(title = "Top 10 First Languages (L1) in the Netherlands",
+       x = "Language",
+       y = "Number of Residents That Speak L1") +
+  theme_clean()
+```
+
+## LoR vs Speaking Proficiency
+
+- Looking at number of participants per residency length category
+```{r}
+languages2 %>% 
+  mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
+                  LoR > 15 & LoR <= 30 ~ "middle",
+                  LoR > 30 & LoR <= 45 ~ "high",
+                  LoR > 45 ~ "very high")) %>% 
+  count(LoR_Category) %>% 
+  ggplot(aes(x=LoR_Category, y=n, fill=LoR_Category))+
+  geom_col()+
+  labs(title = "Participants per Residency Category", x= "Length of Residency", y = "Number of Participants")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+- Looking at spread of speaking score for LoR category with most participants (low)
+```{r}
+languages2 %>% 
+  mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
+                  LoR > 15 & LoR <= 30 ~ "middle",
+                  LoR > 30 & LoR <= 45 ~ "high",
+                  LoR > 45 ~ "very high")) %>% 
+  filter(LoR_Category == "low") %>% 
+  ggplot(aes(x=Speaking))+
+  geom_histogram()+
+  labs(title = "Speaking Score Distribution for Low Residency", x= "Speaking Score", y = "Number of Participants")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+- Looking at spread of the other categories
+```{r}
+languages2 %>% 
+  mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
+                  LoR > 15 & LoR <= 30 ~ "middle",
+                  LoR > 30 & LoR <= 45 ~ "high",
+                  LoR > 45 ~ "very high")) %>% 
+  filter(LoR_Category != "low") %>% 
+  ggplot(aes(x=Speaking, fill=LoR_Category))+
+  geom_histogram(alpha=0.6)+
+  facet_wrap(.~LoR_Category)+
+  labs(title = "Speaking Scores per Residency Category", x= "Speaking Score", y = "Number of Participants")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+## Comparision of new sounds learned vs language family
+
+- average new sounds per language family
+```{r}
+languages2 %>% 
+  filter(!is.na(New_Sounds)) %>% 
+  group_by(Family) %>% 
+  summarise(avg_new_sounds = mean(New_Sounds, na.rm = T)) %>% 
+  ggplot(aes(x=reorder(Family, -avg_new_sounds) , y=avg_new_sounds, fill=Family))+
+  geom_col(alpha = 0.6)+
+  labs(title = "Average New Sounds Learned By Language Family", x= "Language Family", y = "Average Number Of New Sounds")+
+  guides(fill="none")+
+  theme_clean()+
+  theme(axis.text.x = element_text(angle = 25, hjust = 0.6))
+```
+
+- exploring speaking proficiency scores by language family for least and most new sounds, using relative frequency of scores
+```{r}
+languages2 %>% 
+  filter(Family == "Kartvelian" | Family == "Uralic") %>% 
+  ggplot(aes(x=Speaking))+
+  geom_histogram(bins = 40, aes(y=after_stat(density), fill=Family), alpha=0.6)+
+  facet_wrap(.~Family)+
+  labs(title = "Speaking Scores for Family With Least And Most New Sounds", y = "Average Number Of New Sounds")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
+```{r}
+#Highest Lexile(best understanding of new written words on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_lexile=mean(Lexicon), na.rm=T) %>% 
+  arrange(desc(mean_lexile)) %>% slice_head()
+#Highest Morphology(best knowledge of word structure on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_morph=mean(Morphology), na.rm=T) %>% 
+  arrange(desc(mean_morph)) %>% slice_head() 
+#Highest Proficiency(best speaking scores on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_speaking=mean(Speaking)) %>% 
+  arrange(desc(mean_speaking))%>% slice_head()
+```
+
+Do men or women tend to have an easier time learning Dutch on average?
+```{r}
+languages2 %>%
+  filter(Sex=="Female") %>% 
+  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
+  
+```
+```{r}
+languages2 %>%
+  filter(Sex=="Male") %>% 
+  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
+```
+
+
+
