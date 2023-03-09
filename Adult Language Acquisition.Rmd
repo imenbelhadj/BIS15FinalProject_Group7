@@ -359,3 +359,38 @@ languages2 %>%
   guides(fill="none")+
   theme_clean()
 ```
+
+## From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
+```{r}
+#Highest Lexile(best understanding of new written words on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_lexile=mean(Lexicon), na.rm=T) %>% 
+  arrange(desc(mean_lexile)) %>% slice_head()
+#Highest Morphology(best knowledge of word structure on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_morph=mean(Morphology), na.rm=T) %>% 
+  arrange(desc(mean_morph)) %>% slice_head() 
+#Highest Proficiency(best speaking scores on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_speaking=mean(Speaking)) %>% 
+  arrange(desc(mean_speaking))%>% slice_head()
+```
+
+## Do men or women tend to have an easier time learning Dutch on average?
+```{r}
+languages2 %>%
+  filter(Sex=="Female") %>% 
+  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
+  
+```
+```{r}
+languages2 %>%
+  filter(Sex=="Male") %>% 
+  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
+```
+
+
+

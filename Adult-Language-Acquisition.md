@@ -38,10 +38,10 @@ library(tidyverse)
 
 ```
 ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-## ✔ ggplot2 3.4.0     ✔ purrr   1.0.1
-## ✔ tibble  3.1.8     ✔ dplyr   1.1.0
-## ✔ tidyr   1.2.1     ✔ stringr 1.4.1
-## ✔ readr   2.1.3     ✔ forcats 0.5.2
+## ✔ ggplot2 3.4.0      ✔ purrr   1.0.0 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+## ✔ readr   2.1.3      ✔ forcats 0.5.2 
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
@@ -75,7 +75,7 @@ library(ggthemes)
 
 
 ```r
-languages <- readr::read_csv("stex.csv") 
+languages <- readr::read_csv("data/stex.csv") 
 ```
 
 ```
@@ -141,14 +141,11 @@ languages2 %>%
   count(Sex) %>% 
   ggplot(aes(x=Sex,y=n, fill=Sex))+
   geom_col()+
-  labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")#+
+  labs(x="Sex", y="Number of Participants", title = "Representation in the Study by Sex")+
+  theme_clean()
 ```
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
-
-```r
-  #geom_text(aes(label=freq),vjust = -0.5)
-```
 
 ##Distribution of Second Language
 
@@ -160,14 +157,11 @@ languages2 %>%
   labs(x="L2", y="count", title = "Representation of Second Language in the Study Language")+
   scale_y_log10()+
   coord_flip()+
-  guides(fill="none")#+
+  guides(fill="none")+
+  theme_clean()
 ```
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
-
-```r
-  #geom_text(aes(label=freq))
-```
 
 
 ```r
@@ -202,7 +196,8 @@ languages2 %>%
   ggplot(aes(x=AaA,y=n))+
   geom_point()+
   labs(x="Age at Arrival", y="Number of Participants", title = "Representation of Age at Arrival in the Netherlands")+
-  scale_y_log10()
+  scale_y_log10()+
+  theme_clean()
 ```
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
@@ -229,19 +224,10 @@ languages2 %>%
 ## 10     9                   9
 ## # … with 63 more rows
 ```
+
 #Comparing speaking proficiency by age
+
 - Looking at the distribution
-
-```r
-languages2 %>% 
-  ggplot(aes(x=Sex, y=Speaking, fill=Sex))+
-  geom_boxplot(alpha=0.6)+
-  coord_flip()+
-  labs(title = "Range of Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
-  guides(fill="none")
-```
-
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 ```r
 languages2 %>% 
@@ -249,14 +235,16 @@ languages2 %>%
   geom_histogram(alpha=0.6)+
   facet_wrap(.~Sex)+
   labs(title = "Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
-  guides(fill="none")
+  guides(fill="none")+
+  theme_clean()
 ```
 
 ```
 ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
 #Comparing Length of Education and Speaking Proficiency
 
 ```r
@@ -270,10 +258,12 @@ languages2 %>%
   geom_histogram(bins = 40, alpha=0.6)+
   facet_wrap(.~Edu_Days_Category)+
   labs(title = "Speaking Scores By Days of Formal Education", y = "Speaking Score", x=NULL )+
-  guides(fill="none")
+  guides(fill="none")+
+  theme_clean()
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
 - By gender
 
 ```r
@@ -287,10 +277,11 @@ languages2 %>%
   geom_histogram(bins = 40, alpha = 0.6)+
   facet_grid(Sex~Edu_Days_Category, scales = "free_y")+
   labs(title = "Speaking Scores By Days of Formal Education and Sex", y = "Speaking Score" , x=NULL)+
-  guides(fill="none")
+  guides(fill="none")+
+  theme_clean()
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 #Exploring Language Distribution (L1) w/ Country
 
@@ -377,16 +368,363 @@ p
 ```
 
 
-
 ```r
 p %>% 
   ggplot(aes(x=reorder(L1, n), y=n))+
   geom_col(na.rm = T)+ 
-  labs(title = "Top 10 First Languages (L1) in the Netherlands",
+  labs(title = "10 Most Common First Languages (L1) Amongst People Born in Netherlands",
        x = "Language",
-       y = "Number of Residents That Speak L1") +
+       y = "Count of Residents That Speak L1") +
   theme_clean()
 ```
 
-![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+
+
+#Top 10 L2 in Netherlands
+
+
+```r
+netherlands_languages %>% 
+  select(L2) %>% 
+  group_by(L2) %>% 
+  summarize(n=n()) %>% 
+  arrange(-n) #when exploring top 10 L2, find that 223 residents are monolingual
+```
+
+```
+## # A tibble: 18 × 2
+##    L2              n
+##    <chr>       <int>
+##  1 English       294
+##  2 Monolingual   223
+##  3 French        150
+##  4 Arabic         18
+##  5 German         17
+##  6 Spanish        10
+##  7 Turkish         5
+##  8 Dutch           4
+##  9 Afrikaans       3
+## 10 Italian         2
+## 11 Portugese       2
+## 12 Catalan         1
+## 13 Greek           1
+## 14 Hindi           1
+## 15 Russian         1
+## 16 Swedish         1
+## 17 Tamazight       1
+## 18 Ukranian        1
+```
+
+
+```r
+p2 <- netherlands_languages %>% 
+  select(L2) %>% 
+  filter(L2!="Monolingual") %>% 
+  group_by(L2) %>% 
+  summarize(n_L2=n()) %>% 
+  arrange(-n_L2) %>% 
+  head(n=10)
+p2
+```
+
+```
+## # A tibble: 10 × 2
+##    L2         n_L2
+##    <chr>     <int>
+##  1 English     294
+##  2 French      150
+##  3 Arabic       18
+##  4 German       17
+##  5 Spanish      10
+##  6 Turkish       5
+##  7 Dutch         4
+##  8 Afrikaans     3
+##  9 Italian       2
+## 10 Portugese     2
+```
+
+
+```r
+netherlands_languages %>% 
+  group_by(Country) %>% 
+  summarize(across(c(L1, L2), n_distinct))
+```
+
+```
+## # A tibble: 1 × 3
+##   Country        L1    L2
+##   <chr>       <int> <int>
+## 1 Netherlands    32    18
+```
+
+
+```r
+p2 %>% 
+  ggplot(aes(x=reorder(L2, n_L2), y=n_L2))+
+  geom_col(na.rm = T)+ 
+  labs(title = "10 Best Additional Languages (L2) in the Netherlands",
+       x = "Language",
+       y = "Number of Residents That Speak L2") +
+  theme_clean()
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
+
+# Morphology & L1 vs Proficiency
+
+
+```r
+p4 <- languages2 %>% 
+  group_by(Country) %>% 
+  filter(Country=="USSR") %>% 
+  select(Country, L1, Speaking, Morphology) %>% 
+  filter(!is.na(Morphology)) %>% 
+  filter(Speaking>="600") %>% 
+  arrange(-Speaking)
+```
+
+
+```r
+p4 %>% 
+  ggplot(aes(x=Morphology, y=Speaking))+
+  geom_point()+
+  facet_grid(.~L1)+
+  labs(title = "USSR Proficiency Score vs. Morphological Similarities & L1",
+       x= "Score of Morphological Simiarities",
+       y= "Proficiency Score")+
+  theme_clean()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
+
+#Speaking prof vs. Country & Education Time?
+Based off of the top 3 countries that speak the most different amt of L1
+Extremes of edu.days (low & very high)
+
+
+```r
+p3 <- languages2 %>% 
+  group_by(Country) %>% 
+  filter(Country=="Netherlands" | 
+         Country=="USSR" |
+         Country=="Germany") %>% 
+  select(Country, Speaking, Edu_Days) %>% 
+  mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
+                   Edu_Days == 2 ~ "middle",
+                   Edu_Days == 3 ~ "high",
+                   Edu_Days == 4 ~ "very high")) %>% 
+  filter(Edu_Days_Category=="very high" |
+           Edu_Days_Category=="low")
+p3
+```
+
+```
+## # A tibble: 3,025 × 4
+## # Groups:   Country [3]
+##    Country     Speaking Edu_Days Edu_Days_Category
+##    <chr>          <dbl>    <dbl> <chr>            
+##  1 Netherlands      640        4 very high        
+##  2 Netherlands      556        4 very high        
+##  3 USSR             497        1 low              
+##  4 Netherlands      533        4 very high        
+##  5 Germany          546        4 very high        
+##  6 USSR             494        4 very high        
+##  7 Netherlands      547        4 very high        
+##  8 Germany          579        4 very high        
+##  9 Netherlands      534        1 low              
+## 10 Netherlands      495        1 low              
+## # … with 3,015 more rows
+```
+
+
+```r
+p3 %>% 
+  ggplot(aes(x=Speaking))+
+  geom_density()+
+  facet_grid(Country~Edu_Days_Category)+
+  theme_clean()+
+  labs(title = "Proficiency Score vs. Country & Daily Education Duration",
+       x = "Proficiency Score")
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
+
+## LoR vs Speaking Proficiency
+
+- Looking at number of participants per residency length category
+
+
+```r
+languages2 %>% 
+  mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
+                  LoR > 15 & LoR <= 30 ~ "middle",
+                  LoR > 30 & LoR <= 45 ~ "high",
+                  LoR > 45 ~ "very high")) %>% 
+  count(LoR_Category) %>% 
+  ggplot(aes(x=LoR_Category, y=n, fill=LoR_Category))+
+  geom_col()+
+  labs(title = "Participants per Residency Category", x= "Length of Residency", y = "Number of Participants")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-27-1.png)<!-- -->
+
+- Looking at spread of speaking score for LoR category with most participants (low)
+
+```r
+languages2 %>% 
+  mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
+                  LoR > 15 & LoR <= 30 ~ "middle",
+                  LoR > 30 & LoR <= 45 ~ "high",
+                  LoR > 45 ~ "very high")) %>% 
+  filter(LoR_Category == "low") %>% 
+  ggplot(aes(x=Speaking))+
+  geom_histogram()+
+  labs(title = "Speaking Score Distribution for Low Residency", x= "Speaking Score", y = "Number of Participants")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-28-1.png)<!-- -->
+
+- Looking at spread of the other categories
+
+```r
+languages2 %>% 
+  mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
+                  LoR > 15 & LoR <= 30 ~ "middle",
+                  LoR > 30 & LoR <= 45 ~ "high",
+                  LoR > 45 ~ "very high")) %>% 
+  filter(LoR_Category != "low") %>% 
+  ggplot(aes(x=Speaking, fill=LoR_Category))+
+  geom_histogram(alpha=0.6)+
+  facet_wrap(.~LoR_Category)+
+  labs(title = "Speaking Scores per Residency Category", x= "Speaking Score", y = "Number of Participants")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
+
+## Comparision of new sounds learned vs language family
+
+- average new sounds per language family
+
+```r
+languages2 %>% 
+  filter(!is.na(New_Sounds)) %>% 
+  group_by(Family) %>% 
+  summarise(avg_new_sounds = mean(New_Sounds, na.rm = T)) %>% 
+  ggplot(aes(x=reorder(Family, -avg_new_sounds) , y=avg_new_sounds, fill=Family))+
+  geom_col(alpha = 0.6)+
+  labs(title = "Average New Sounds Learned By Language Family", x= "Language Family", y = "Average Number Of New Sounds")+
+  guides(fill="none")+
+  theme_clean()+
+  theme(axis.text.x = element_text(angle = 25, hjust = 0.6))
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-30-1.png)<!-- -->
+
+- exploring speaking proficiency scores by language family for least and most new sounds, using relative frequency of scores
+
+```r
+languages2 %>% 
+  filter(Family == "Kartvelian" | Family == "Uralic") %>% 
+  ggplot(aes(x=Speaking))+
+  geom_histogram(bins = 40, aes(y=after_stat(density), fill=Family), alpha=0.6)+
+  facet_wrap(.~Family)+
+  labs(title = "Speaking Scores for Family With Least And Most New Sounds", y = "Average Number Of New Sounds")+
+  guides(fill="none")+
+  theme_clean()
+```
+
+![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-31-1.png)<!-- -->
+
+## From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
+
+```r
+#Highest Lexile(best understanding of new written words on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_lexile=mean(Lexicon), na.rm=T) %>% 
+  arrange(desc(mean_lexile)) %>% slice_head()
+```
+
+```
+## # A tibble: 1 × 3
+##   Country mean_lexile na.rm
+##   <chr>         <dbl> <lgl>
+## 1 Somalia       0.594 TRUE
+```
+
+```r
+#Highest Morphology(best knowledge of word structure on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_morph=mean(Morphology), na.rm=T) %>% 
+  arrange(desc(mean_morph)) %>% slice_head() 
+```
+
+```
+## # A tibble: 1 × 3
+##   Country mean_morph na.rm
+##   <chr>        <dbl> <lgl>
+## 1 Vietnam      0.282 TRUE
+```
+
+```r
+#Highest Proficiency(best speaking scores on avg):
+languages2 %>% 
+  group_by(Country) %>% 
+  summarise(mean_speaking=mean(Speaking)) %>% 
+  arrange(desc(mean_speaking))%>% slice_head()
+```
+
+```
+## # A tibble: 1 × 2
+##   Country mean_speaking
+##   <chr>           <dbl>
+## 1 Austria          564.
+```
+
+## Do men or women tend to have an easier time learning Dutch on average?
+
+```r
+languages2 %>%
+  filter(Sex=="Female") %>% 
+  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
+```
+
+```
+## # A tibble: 1 × 4
+##   mean_speaking mean_morph mean_lexile mean_features
+##           <dbl>      <dbl>       <dbl>         <dbl>
+## 1          524.     0.0488       0.384          13.8
+```
+
+```r
+languages2 %>%
+  filter(Sex=="Male") %>% 
+  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
+```
+
+```
+## # A tibble: 1 × 4
+##   mean_speaking mean_morph mean_lexile mean_features
+##           <dbl>      <dbl>       <dbl>         <dbl>
+## 1          505.     0.0529       0.465          15.7
+```
+
+
 
