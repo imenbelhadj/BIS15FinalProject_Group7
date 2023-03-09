@@ -180,6 +180,7 @@ p <- netherlands_languages %>%
   head(n=10)
 p
 ```
+
 ```{r}
 netherlands_languages %>% 
   summarise(n_netherland_residents = n()) 
@@ -190,7 +191,7 @@ netherlands_languages %>%
 p %>% 
   ggplot(aes(x=reorder(L1, n), y=n))+
   geom_col(na.rm = T)+ 
-  labs(title = "10 Most Common First Languages (L1) in the Netherlands",
+  labs(title = "10 Most Common First Languages in the Netherlands",
        x = "Language",
        y = "Number of Residents That Speak L1") +
   theme_clean()
@@ -203,18 +204,17 @@ netherlands_languages %>%
   select(L2) %>% 
   group_by(L2) %>% 
   summarize(n=n()) %>% 
-  arrange(-n) %>% 
-  head(n=10) #when exploring top 10 L2, find that 223 residents are monolingual
+  arrange(-n) #when exploring top 10 L2, find that 223 residents are monolingual
 ```
 
 ```{r}
 p2 <- netherlands_languages %>% 
-  select(L2) %>%  
+  select(L2) %>% 
   filter(L2!="Monolingual") %>% 
   group_by(L2) %>% 
   summarize(n_L2=n()) %>% 
   arrange(-n_L2) %>% 
-  head(n=10) #top 10 L2 when "monolingual" is removed
+  head(n=10)
 p2
 ```
 
@@ -236,8 +236,29 @@ p2 %>%
   theme_clean()
 ```
 
-#Correlation between L1 & L2 (Top 10 of Each)? Given L1, is there a Predictable L2?
+# Morphology & L1 vs Proficiency
 
+```{r}
+p4 <- languages2 %>% 
+  group_by(Country) %>% 
+  filter(Country=="USSR") %>% 
+  select(Country, L1, Speaking, Morphology) %>% 
+  filter(!is.na(Morphology)) %>% 
+  filter(Speaking>="600") %>% 
+  arrange(-Speaking)
+```
+
+```{r}
+p4 %>% 
+  ggplot(aes(x=Morphology, y=Speaking))+
+  geom_point()+
+  facet_grid(.~L1)+
+  labs(title = "USSR Proficiency Score vs. Morphological Similarities & L1",
+       x= "Score of Morphological Simiarities",
+       y= "Proficiency Score")+
+  theme_clean()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
 
 
 #Speaking prof vs. Country & Education Time?
@@ -268,38 +289,5 @@ p3 %>%
   theme_clean()+
   labs(title = "Proficiency Score vs. Country & Daily Education Duration",
        x = "Proficiency Score")
-```
-
-From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
-```{r}
-#Highest Lexile(best understanding of new written words on avg):
-languages2 %>% 
-  group_by(Country) %>% 
-  summarise(mean_lexile=mean(Lexicon), na.rm=T) %>% 
-  arrange(desc(mean_lexile)) %>% slice_head()
-#Highest Morphology(best knowledge of word structure on avg):
-languages2 %>% 
-  group_by(Country) %>% 
-  summarise(mean_morph=mean(Morphology), na.rm=T) %>% 
-  arrange(desc(mean_morph)) %>% slice_head() 
-#Highest Proficiency(best speaking scores on avg):
-languages2 %>% 
-  group_by(Country) %>% 
-  summarise(mean_speaking=mean(Speaking)) %>% 
-  arrange(desc(mean_speaking))%>% slice_head()
-```
-
-Do men or women tend to have an easier time learning Dutch on average?
-Females:
-```{r}
-languages2 %>%
-  filter(Sex=="Female") %>% 
-  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
-```
-Males:
-```{r}
-languages2 %>%
-  filter(Sex=="Male") %>% 
-  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
 ```
 

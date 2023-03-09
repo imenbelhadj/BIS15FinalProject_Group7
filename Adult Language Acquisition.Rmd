@@ -185,15 +185,108 @@ p
 p %>% 
   ggplot(aes(x=reorder(L1, n), y=n))+
   geom_col(na.rm = T)+ 
-  labs(title = "Top 10 First Languages (L1) in the Netherlands",
+  labs(title = "10 Most Common First Languages (L1) Amongst People Born in Netherlands",
        x = "Language",
-       y = "Number of Residents That Speak L1") +
+       y = "Count of Residents That Speak L1") +
   theme_clean()
+```
+
+
+#Top 10 L2 in Netherlands
+
+```{r}
+netherlands_languages %>% 
+  select(L2) %>% 
+  group_by(L2) %>% 
+  summarize(n=n()) %>% 
+  arrange(-n) #when exploring top 10 L2, find that 223 residents are monolingual
+```
+
+```{r}
+p2 <- netherlands_languages %>% 
+  select(L2) %>% 
+  filter(L2!="Monolingual") %>% 
+  group_by(L2) %>% 
+  summarize(n_L2=n()) %>% 
+  arrange(-n_L2) %>% 
+  head(n=10)
+p2
+```
+
+```{r}
+netherlands_languages %>% 
+  group_by(Country) %>% 
+  summarize(across(c(L1, L2), n_distinct))
+```
+
+```{r}
+p2 %>% 
+  ggplot(aes(x=reorder(L2, n_L2), y=n_L2))+
+  geom_col(na.rm = T)+ 
+  labs(title = "10 Best Additional Languages (L2) in the Netherlands",
+       x = "Language",
+       y = "Number of Residents That Speak L2") +
+  theme_clean()
+```
+
+# Morphology & L1 vs Proficiency
+
+```{r}
+p4 <- languages2 %>% 
+  group_by(Country) %>% 
+  filter(Country=="USSR") %>% 
+  select(Country, L1, Speaking, Morphology) %>% 
+  filter(!is.na(Morphology)) %>% 
+  filter(Speaking>="600") %>% 
+  arrange(-Speaking)
+```
+
+```{r}
+p4 %>% 
+  ggplot(aes(x=Morphology, y=Speaking))+
+  geom_point()+
+  facet_grid(.~L1)+
+  labs(title = "USSR Proficiency Score vs. Morphological Similarities & L1",
+       x= "Score of Morphological Simiarities",
+       y= "Proficiency Score")+
+  theme_clean()+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+#Speaking prof vs. Country & Education Time?
+Based off of the top 3 countries that speak the most different amt of L1
+Extremes of edu.days (low & very high)
+
+```{r}
+p3 <- languages2 %>% 
+  group_by(Country) %>% 
+  filter(Country=="Netherlands" | 
+         Country=="USSR" |
+         Country=="Germany") %>% 
+  select(Country, Speaking, Edu_Days) %>% 
+  mutate(Edu_Days_Category = case_when(Edu_Days == 1 ~ "low",
+                   Edu_Days == 2 ~ "middle",
+                   Edu_Days == 3 ~ "high",
+                   Edu_Days == 4 ~ "very high")) %>% 
+  filter(Edu_Days_Category=="very high" |
+           Edu_Days_Category=="low")
+p3
+```
+
+```{r}
+p3 %>% 
+  ggplot(aes(x=Speaking))+
+  geom_density()+
+  facet_grid(Country~Edu_Days_Category)+
+  theme_clean()+
+  labs(title = "Proficiency Score vs. Country & Daily Education Duration",
+       x = "Proficiency Score")
 ```
 
 ## LoR vs Speaking Proficiency
 
 - Looking at number of participants per residency length category
+
 ```{r}
 languages2 %>% 
   mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
@@ -266,36 +359,3 @@ languages2 %>%
   guides(fill="none")+
   theme_clean()
 ```
-
-From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
-```{r}
-#Highest Lexile(best understanding of new written words on avg):
-languages2 %>% 
-  group_by(Country) %>% 
-  summarise(mean_lexile=mean(Lexicon), na.rm=T) %>% 
-  arrange(desc(mean_lexile)) %>% slice_head()
-#Highest Morphology(best knowledge of word structure on avg):
-languages2 %>% 
-  group_by(Country) %>% 
-  summarise(mean_morph=mean(Morphology), na.rm=T) %>% 
-  arrange(desc(mean_morph)) %>% slice_head() 
-#Highest Proficiency(best speaking scores on avg):
-languages2 %>% 
-  group_by(Country) %>% 
-  summarise(mean_speaking=mean(Speaking)) %>% 
-  arrange(desc(mean_speaking))%>% slice_head()
-```
-
-Do men or women tend to have an easier time learning Dutch on average?
-```{r}
-languages2 %>%
-  filter(Sex=="Female") %>% 
-  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
-  
-```
-```{r}
-languages2 %>%
-  filter(Sex=="Male") %>% 
-  summarise(mean_speaking=mean(Speaking), mean_morph=mean(Morphology, na.rm=T), mean_lexile=mean(Lexicon), mean_features=mean(New_Features, na.rm = T))
-```
-
