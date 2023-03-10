@@ -16,24 +16,32 @@ Reference: Schepens, Job, Roeland van Hout, and T. Florian Jaeger. “Big Data S
 Data: 
 https://www.kaggle.com/datasets/thedevastator/adult-language-learning-profile
 
-##Column Name Explanations
-L1: The first language of the learner
-C: The country of birth
-L1L2: The combination of first and best additional language besides Dutch
-AaA: Age at Arrival in the Netherlands in years (starting date of residence)
-LoR: Length of residence in the Netherlands in years
-Edu.day: Duration of daily education (1 low, 2 middle, 3 high, 4 very high)
-Sex: Gender of the participant
-Family: Language family
-ISO639.3: Language ID code according to Ethnologue
-Enroll: Proportion of school-aged youth enrolled in secondary education according to the World Bank for participants country
-Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language
-morph: Morphological score related to knowledge structures within words
-lex: Lexicon score indicating understanding of written words
-new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures. (Integer)
-new_sounds: Sound symbols score evaluating pronunciation. (Integer)
+Column Name Explanations:  
+  
+L1: The first language of the learner  
+C: The country of birth  
+L1L2: The combination of first and best additional language besides Dutch  
+AaA: Age at Arrival in the Netherlands in years (starting date of residence)  
+LoR: Length of residence in the Netherlands in years  
+Edu.day: Duration of daily education (1 low, 2 middle, 3 high, 4 very high)  
+Sex: Gender of the participant  
+Family: Language family  
+ISO639.3: Language ID code according to Ethnologue  
+Enroll: Proportion of school-aged youth enrolled in secondary education according to the World Bank for participants country  
+Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language  
+morph: Morphological score related to knowledge structures within words  
+lex: Lexicon score indicating understanding of written words  
+new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures  
+new_sounds: Sound symbols score evaluating pronunciation. (Integer)  
 
+## Who did what?
+Imen: Q0 - Data cleaning, Q1-4, 13,14   
+Khushleen: Q 5,6,11,12 (and sub-questions)  
+Abigail:  Q 7-10  
+
+## 0) Cleaning the data
 ```{r}
+#Loading the packages
 library(tidyverse)
 library(tidyr)
 library(janitor)
@@ -48,9 +56,11 @@ library(ggthemes)
 
 
 ```{r}
+#Load the data
 languages <- readr::read_csv("data/stex.csv") 
 ```
 ```{r}
+# Cleaning Data
 languages2<- languages %>% select(-"L1L2") %>% 
   plyr::rename(c("C"="Country", "lex"="Lexicon", "morph"="Morphology","new_feat"="New_Features", "new_sounds"="New_Sounds","Edu.day"="Edu_Days"))
 ```
@@ -110,6 +120,8 @@ languages2 %>%
 ```
 
 # 5) Comparing speaking proficiency by age at arrival
+
+- There is a general downward trend; as age at arrival increases, proficiency decreases
 ```{r}
 languages2 %>% 
   group_by(AaA) %>% 
@@ -133,7 +145,7 @@ languages2 %>%
   ggplot(aes(x=Speaking, fill=Edu_Days_Category))+
   geom_histogram(bins = 40, alpha=0.6)+
   facet_wrap(.~Edu_Days_Category)+
-  labs(title = "Speaking Scores By Days of Formal Education", y = "Speaking Score", x=NULL )+
+  labs(title = "Speaking Scores By Days of Formal Education", x = "Speaking Score", y="Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
@@ -315,7 +327,7 @@ languages2 %>%
   theme_clean()
 ```
 
-- Looking at spread of the other categories
+- Looking at spread of the other residency categories
 ```{r}
 languages2 %>% 
   mutate(LoR_Category = case_when(LoR <= 15 ~ "low",
@@ -324,7 +336,7 @@ languages2 %>%
                   LoR > 45 ~ "very high")) %>% 
   filter(LoR_Category != "low") %>% 
   ggplot(aes(x=Speaking, fill=LoR_Category))+
-  geom_histogram(alpha=0.6)+
+  geom_histogram(alpha=0.6, bins=60)+
   facet_wrap(.~LoR_Category)+
   labs(title = "Speaking Scores per Residency Category", x= "Speaking Score", y = "Number of Participants")+
   guides(fill="none")+

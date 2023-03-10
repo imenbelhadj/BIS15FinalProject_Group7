@@ -14,25 +14,33 @@ Reference: Schepens, Job, Roeland van Hout, and T. Florian Jaeger. “Big Data S
 Data: 
 https://www.kaggle.com/datasets/thedevastator/adult-language-learning-profile
 
-##Column Name Explanations
-L1: The first language of the learner
-C: The country of birth
-L1L2: The combination of first and best additional language besides Dutch
-AaA: Age at Arrival in the Netherlands in years (starting date of residence)
-LoR: Length of residence in the Netherlands in years
-Edu.day: Duration of daily education (1 low, 2 middle, 3 high, 4 very high)
-Sex: Gender of the participant
-Family: Language family
-ISO639.3: Language ID code according to Ethnologue
-Enroll: Proportion of school-aged youth enrolled in secondary education according to the World Bank for participants country
-Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language
-morph: Morphological score related to knowledge structures within words
-lex: Lexicon score indicating understanding of written words
-new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures. (Integer)
-new_sounds: Sound symbols score evaluating pronunciation. (Integer)
+Column Name Explanations:  
+  
+L1: The first language of the learner  
+C: The country of birth  
+L1L2: The combination of first and best additional language besides Dutch  
+AaA: Age at Arrival in the Netherlands in years (starting date of residence)  
+LoR: Length of residence in the Netherlands in years  
+Edu.day: Duration of daily education (1 low, 2 middle, 3 high, 4 very high)  
+Sex: Gender of the participant  
+Family: Language family  
+ISO639.3: Language ID code according to Ethnologue  
+Enroll: Proportion of school-aged youth enrolled in secondary education according to the World Bank for participants country  
+Speaking: Speaking proficiency test score on the State Examination of Dutch as a Second Language  
+morph: Morphological score related to knowledge structures within words  
+lex: Lexicon score indicating understanding of written words  
+new_feat: Feature score reflecting ability to acquire new sounds/grammatical structures  
+new_sounds: Sound symbols score evaluating pronunciation. (Integer)  
 
+## Who did what?
+Imen: Q0 - Data cleaning, Q1-4, 13,14   
+Khushleen: Q 5,6,11,12 (and sub-questions)  
+Abigail:  Q 7-10  
+
+## 0) Cleaning the data
 
 ```r
+#Loading the packages
 library(tidyverse)
 ```
 
@@ -75,6 +83,7 @@ library(ggthemes)
 
 
 ```r
+#Load the data
 languages <- readr::read_csv("data/stex.csv") 
 ```
 
@@ -90,6 +99,7 @@ languages <- readr::read_csv("data/stex.csv")
 ```
 
 ```r
+# Cleaning Data
 languages2<- languages %>% select(-"L1L2") %>% 
   plyr::rename(c("C"="Country", "lex"="Lexicon", "morph"="Morphology","new_feat"="New_Features", "new_sounds"="New_Sounds","Edu.day"="Edu_Days"))
 ```
@@ -118,7 +128,7 @@ languages2
 ## #   ¹​Edu_Days, ²​ISO639.3, ³​Speaking
 ```
 
-##Where the NAs are:
+## 1) Where the NAs are:
 
 ```r
 languages2 %>% 
@@ -134,7 +144,7 @@ languages2 %>%
 ## #   New_Sounds <int>
 ```
 
-##Distribution of Sex of Participants
+## 2) Distribution of Sex of Participants
 
 ```r
 languages2 %>% 
@@ -147,7 +157,7 @@ languages2 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
-##Distribution of Second Language
+## 3) Distribution of Second Language
 
 ```r
 languages2 %>% 
@@ -188,7 +198,7 @@ languages2 %>%
 ## #   ¹​Edu_Days, ²​ISO639.3, ³​Speaking
 ```
 
-##Distribution of Age at Arrival
+## 4) Distribution of Age at Arrival
 
 ```r
 languages2 %>% 
@@ -225,27 +235,29 @@ languages2 %>%
 ## # … with 63 more rows
 ```
 
-#Comparing speaking proficiency by age
+# 5) Comparing speaking proficiency by age at arrival
 
-- Looking at the distribution
+- There is a general downward trend; as age at arrival increases, proficiency decreases
 
 ```r
 languages2 %>% 
-  ggplot(aes(x=Speaking, fill=Sex))+
-  geom_histogram(alpha=0.6)+
-  facet_wrap(.~Sex)+
-  labs(title = "Speaking Scores By Sex of Participants", x = "Speaking Score", y="Sex of Participant" )+
+  group_by(AaA) %>% 
+  summarise(Avg_Speaking = mean(Speaking)) %>% 
+  ggplot(aes(x=AaA, y=Avg_Speaking))+
+  geom_point(shape=2)+
+  geom_smooth(method = lm)+
+  labs(title = "Speaking Scores By Participants Age at Arrival in Netherlands", x = "Age of Participants", y="Average Speaking Score" )+
   guides(fill="none")+
   theme_clean()
 ```
 
 ```
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `geom_smooth()` using formula = 'y ~ x'
 ```
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
-#Comparing Length of Education and Speaking Proficiency
+# 6) Comparing Length of Education and Speaking Proficiency
 
 ```r
 languages2 %>% 
@@ -257,7 +269,7 @@ languages2 %>%
   ggplot(aes(x=Speaking, fill=Edu_Days_Category))+
   geom_histogram(bins = 40, alpha=0.6)+
   facet_wrap(.~Edu_Days_Category)+
-  labs(title = "Speaking Scores By Days of Formal Education", y = "Speaking Score", x=NULL )+
+  labs(title = "Speaking Scores By Days of Formal Education", x = "Speaking Score", y="Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
@@ -283,7 +295,7 @@ languages2 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
-#Exploring Language Distribution (L1) w/ Country
+## 7) Exploring Language Distribution (L1) w/ Country
 
 
 ```r
@@ -381,7 +393,7 @@ p %>%
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
 
 
-#Top 10 L2 in Netherlands
+## 8) Top 10 L2 in Netherlands
 
 
 ```r
@@ -471,7 +483,7 @@ p2 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
 
-# Morphology & L1 vs Proficiency
+## 9) Morphology & L1 vs Proficiency
 
 
 ```r
@@ -499,7 +511,7 @@ p4 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
 
-#Speaking prof vs. Country & Education Time?
+## 10) Speaking prof vs. Country & Education Time?
 Based off of the top 3 countries that speak the most different amt of L1
 Extremes of edu.days (low & very high)
 
@@ -551,10 +563,9 @@ p3 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
 
-## LoR vs Speaking Proficiency
+## 11) LoR vs Speaking Proficiency
 
 - Looking at number of participants per residency length category
-
 
 ```r
 languages2 %>% 
@@ -564,8 +575,8 @@ languages2 %>%
                   LoR > 45 ~ "very high")) %>% 
   count(LoR_Category) %>% 
   ggplot(aes(x=LoR_Category, y=n, fill=LoR_Category))+
-  geom_col()+
-  labs(title = "Participants per Residency Category", x= "Length of Residency", y = "Number of Participants")+
+  geom_col(alpha = 0.6)+
+  labs(title = "Participants Per Residency Category", x= "Length of Residency", y = "Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
@@ -583,7 +594,7 @@ languages2 %>%
   filter(LoR_Category == "low") %>% 
   ggplot(aes(x=Speaking))+
   geom_histogram()+
-  labs(title = "Speaking Score Distribution for Low Residency", x= "Speaking Score", y = "Number of Participants")+
+  labs(title = "Speaking Score Distribution for Low Residency Category", x= "Speaking Score", y = "Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
@@ -594,7 +605,7 @@ languages2 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-28-1.png)<!-- -->
 
-- Looking at spread of the other categories
+- Looking at spread of the other residency categories
 
 ```r
 languages2 %>% 
@@ -604,20 +615,16 @@ languages2 %>%
                   LoR > 45 ~ "very high")) %>% 
   filter(LoR_Category != "low") %>% 
   ggplot(aes(x=Speaking, fill=LoR_Category))+
-  geom_histogram(alpha=0.6)+
+  geom_histogram(alpha=0.6, bins=60)+
   facet_wrap(.~LoR_Category)+
   labs(title = "Speaking Scores per Residency Category", x= "Speaking Score", y = "Number of Participants")+
   guides(fill="none")+
   theme_clean()
 ```
 
-```
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-```
-
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
 
-## Comparision of new sounds learned vs language family
+## 12) Comparision of new sounds learned vs language family
 
 - average new sounds per language family
 
@@ -651,7 +658,7 @@ languages2 %>%
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-31-1.png)<!-- -->
 
-## From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
+## 13) From what countries do people learn Dutch the easiest? (What country has the highest lexicon?)
 
 ```r
 #Highest Lexile(best understanding of new written words on avg):
@@ -698,7 +705,7 @@ languages2 %>%
 ## 1 Austria          564.
 ```
 
-## Do men or women tend to have an easier time learning Dutch on average?
+## 14) Do men or women tend to have an easier time learning Dutch on average?
 
 ```r
 languages2 %>%
