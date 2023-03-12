@@ -651,7 +651,7 @@ languages2 %>%
   ggplot(aes(x=Speaking))+
   geom_histogram(bins = 40, aes(y=after_stat(density), fill=Family), alpha=0.6)+
   facet_wrap(.~Family)+
-  labs(title = "Speaking Scores for Family With Least And Most New Sounds", y = "Average Number Of New Sounds")+
+  labs(title = "Speaking Scores for Family With Least And Most New Sounds", y = "Relative Frequency Of New Sounds")+
   guides(fill="none")+
   theme_clean()
 ```

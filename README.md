@@ -1,1 +1,9 @@
 # BIS15FinalProject_Group7
+
+This repository contains our analysis of data on state examinations for Dutch as a second language, from Netherlands, focusing on age at arrival, sex of participants, education days, length of residency etc. The analysis was conducted using various methods and plots learned over the course of BIS 15L in winter 2023. Each group member focused on a different aspect of analyzing the data and trends regarding the different factors affecting examination scores. This is further explained below:  
+  
+Abigail: Used the data to find any relationships between different variables among countries, focusing more on the top 3 countries that have the highest varying native languages compared to other countries found in the dataset. Such relationships explored include: common native and second languages within a country, whether speaking proficiency score is dependent on a person???s native language, and speaking proficiency score compared between countries, as well as amongst their duration of education.  
+  
+Imen: Represented the variance of AaA(Age at Arrival) as well as the sex of participants in the study. Summarized columns of morphology(knowledge of word structure), new features(ability to acquire new sounds/grammatical structures), and lexicon(score of understanding of written words) on the basis of sex to determine whether men or women were more adept at picking up Dutch. Also, summarized lexicon, morphology, and speaking proficiency scores by country to determine what country scored the highest on average for each skill.  
+  
+Khushleen: Focused on exploring speaking proficiency scores by different variables such as age at arrival in Netherlands, days of formal education in dutch and length of residency. Also looked at general comparisons between language families and what families had a larger number of new sounds and how that impacted speaking scores of the participants.    
