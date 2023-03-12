@@ -46,10 +46,10 @@ library(tidyverse)
 
 ```
 ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-## ✔ ggplot2 3.4.0      ✔ purrr   1.0.0 
-## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
-## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-## ✔ readr   2.1.3      ✔ forcats 0.5.2 
+## ✔ ggplot2 3.4.0     ✔ purrr   1.0.1
+## ✔ tibble  3.1.8     ✔ dplyr   1.1.0
+## ✔ tidyr   1.2.1     ✔ stringr 1.4.1
+## ✔ readr   2.1.3     ✔ forcats 0.5.2
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
@@ -382,12 +382,13 @@ p
 
 ```r
 p %>% 
-  ggplot(aes(x=reorder(L1, n), y=n))+
-  geom_col(na.rm = T)+ 
+  ggplot(aes(x=reorder(L1, n), y=n, fill=L1))+
+  geom_col(na.rm = T, alpha=0.6)+ 
   labs(title = "10 Most Common First Languages (L1) Amongst People Born in Netherlands",
        x = "Language",
        y = "Count of Residents That Speak L1") +
-  theme_clean()
+  theme_clean()+
+  guides(fill="none")
 ```
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
@@ -473,12 +474,13 @@ netherlands_languages %>%
 
 ```r
 p2 %>% 
-  ggplot(aes(x=reorder(L2, n_L2), y=n_L2))+
-  geom_col(na.rm = T)+ 
+  ggplot(aes(x=reorder(L2, n_L2), y=n_L2, fill=L2))+
+  geom_col(na.rm = T, alpha=0.6)+ 
   labs(title = "10 Best Additional Languages (L2) in the Netherlands",
        x = "Language",
        y = "Number of Residents That Speak L2") +
-  theme_clean()
+  theme_clean()+
+  guides(fill="none")
 ```
 
 ![](Adult-Language-Acquisition_files/figure-html/unnamed-chunk-22-1.png)<!-- -->

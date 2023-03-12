@@ -195,12 +195,13 @@ p
 
 ```{r}
 p %>% 
-  ggplot(aes(x=reorder(L1, n), y=n))+
-  geom_col(na.rm = T)+ 
+  ggplot(aes(x=reorder(L1, n), y=n, fill=L1))+
+  geom_col(na.rm = T, alpha=0.6)+ 
   labs(title = "10 Most Common First Languages (L1) Amongst People Born in Netherlands",
        x = "Language",
        y = "Count of Residents That Speak L1") +
-  theme_clean()
+  theme_clean()+
+  guides(fill="none")
 ```
 
 
@@ -233,12 +234,13 @@ netherlands_languages %>%
 
 ```{r}
 p2 %>% 
-  ggplot(aes(x=reorder(L2, n_L2), y=n_L2))+
-  geom_col(na.rm = T)+ 
+  ggplot(aes(x=reorder(L2, n_L2), y=n_L2, fill=L2))+
+  geom_col(na.rm = T, alpha=0.6)+ 
   labs(title = "10 Best Additional Languages (L2) in the Netherlands",
        x = "Language",
        y = "Number of Residents That Speak L2") +
-  theme_clean()
+  theme_clean()+
+  guides(fill="none")
 ```
 
 ## 9) Morphology & L1 vs Proficiency
