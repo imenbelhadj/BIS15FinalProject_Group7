@@ -384,7 +384,7 @@ p
 p %>% 
   ggplot(aes(x=reorder(L1, n), y=n, fill=L1))+
   geom_col(na.rm = T, alpha=0.6)+ 
-  labs(title = "10 Most Common First Languages (L1) Amongst People Born in Netherlands",
+  labs(title = "Most Common First Languages (L1) of People Born in the Netherlands",
        x = "Language",
        y = "Count of Residents That Speak L1") +
   theme_clean()+
@@ -476,9 +476,9 @@ netherlands_languages %>%
 p2 %>% 
   ggplot(aes(x=reorder(L2, n_L2), y=n_L2, fill=L2))+
   geom_col(na.rm = T, alpha=0.6)+ 
-  labs(title = "10 Best Additional Languages (L2) in the Netherlands",
+  labs(title = "10 Best Additional Languages (L2) of People Born in the Netherlands",
        x = "Language",
-       y = "Number of Residents That Speak L2") +
+       y = "Count of Residents That Speak L2") +
   theme_clean()+
   guides(fill="none")
 ```
